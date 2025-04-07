@@ -1,0 +1,16 @@
+
+
+<nav class="navlinks">
+<%= link_to "Home", root_path%>
+<%= link_to "Draw", draw_path, data: { turbolinks: false } %>
+
+<% if user_signed_in? %>
+<%= link_to "Create", new_post_path, class: "create-post-link" %>
+<%= link_to user_path(current_user) do %>
+  <%= image_tag(current_user.image.attached? ? current_user.image : 'default-avatar.png', style: "display: inline-block; width:50px; height:50px; border-radius:50%;") %>
+<% end %>
+<%else%>
+<%= link_to "Sign up!", new_user_registration_path %>
+<%= link_to "login", new_user_session_path %>
+<%end%>
+</nav>

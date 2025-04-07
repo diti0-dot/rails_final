@@ -1,0 +1,59 @@
+<% if user_signed_in? %>
+  <div class="user">
+    <!-- User Header (Profile Image, Username, and Bio) -->
+    <div class="post-header">
+      <%= image_tag(@user.image.attached? ? @user.image : 'default-avatar.png', 
+          style: "width: 50px; height: 50px; border-radius: 50%;") %>
+      <p><strong><%= @user.username %></strong></p>
+      <p><%= @user.bio || "No bio available." %></p>
+    </div>
+
+    <!-- Follow/Following and Post Count -->
+    <div class="user-stats">
+      <span><strong>120</strong> Followers</span> | 
+      <span><strong>80</strong> Following</span> | 
+      <span><strong><%= @user.posts.count %></strong> Posts</span>
+    </div>
+
+    <!-- Edit Profile Link (Using edit_user_registration_path) -->
+    <div class="edit-profile-link">
+      <%= link_to "Edit Profile", edit_user_registration_path, class: "btn btn-secondary" %>
+    </div>
+
+    <!-- Follow/Unfollow Button (for now, just a placeholder) -->
+    <% if current_user != @user %>
+      <%= button_to "Follow", follow_user_path(@user), method: :post, class: "btn btn-primary" %>
+    <% end %>
+
+    <!-- User Posts -->
+    <% if @user.posts.any? %>
+      <% @user.posts.each do |post| %>
+        <div class="post-container">
+          <!-- Post Title -->
+          <h2 class="post-title"><%= post.title %></h2>
+
+          <!-- Post Body -->
+          <p class="post-body"><%= truncate(post.body, length: 100) %></p>
+
+          <!-- Post Image (if attached) -->
+          <% if post.image.attached? %>
+            <img class="post-image" src="<%= url_for(post.image) %>" alt="Post image">
+          <% end %>
+
+          <!-- Post Actions (Edit/Delete if current_user) -->
+          <% if post.user == current_user %>
+            <div class="post-actions">
+              <%= link_to "Edit", edit_post_path(post), class: "create-post-link" %>
+              <%= button_to "Delete", post, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "create-post-link" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p>You haven’t made any posts yet.</p>
+      <%= link_to "Create a Post", new_post_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% else %>
+  <p>Please <%= link_to "Login", new_user_session_path %> to see your posts.</p>
+<% end %>

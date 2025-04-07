@@ -1,0 +1,58 @@
+<% if @posts.any? %>
+  <% @posts.each do |post| %>
+    <div class="post-container" id="post-<%= post.id %>">
+      <!-- Post Header (User Image and Username) -->
+      <div class="post-header">
+        <%= image_tag(post.user&.image&.attached? ? post.user.image : 'default-avatar.png', 
+            style: "width: 50px; height: 50px; border-radius: 50%;") %>
+        <p><strong><%= post.user&.username || "Unknown User" %></strong></p>
+      </div>
+      
+      <!-- Post Title -->
+      <h2 class="post-title"><%= link_to post.title, post_path(post) %></h2>
+      
+      <!-- Post Body -->
+      <p class="post-body"><%= post.body %></p>
+
+      <!-- Post Image (if attached) -->
+      <%= image_tag(post.image, style: "width: 100px;") if post.image.attached? %>
+
+      <!-- Comment Link with Count -->
+      <%= link_to post_path(post) do %>
+        <%= image_tag('comment.png', style: "display: inline-block; width:20px; height:20px;") %>
+        <%= post.comments.count %>
+      <% end %>
+
+      <!-- Like/Unlike Button with Image & Count -->
+      <div id="like-section-<%= post.id %>" style="display: flex; align-items: center; gap: 5px;">
+        <% if user_signed_in? %>
+          <% like = current_user.likes.find_by(post_id: post.id) %>
+          <% if like %>
+            <%= button_to post_like_path(post_id: post.id, id: like.id), 
+                  method: :delete,
+                  remote: true,
+                  class: "like-button",
+                  style: "border: none; background: none; padding: 0;" do %>
+              <%= image_tag("heart.png", style: "width: 24px; height: 24px;") %>
+            <% end %>
+          <% else %>
+            <%= button_to post_likes_path(post_id: post.id), 
+                  method: :post,
+                  remote: true,
+                  class: "like-button",
+                  style: "border: none; background: none; padding: 0;" do %>
+              <%= image_tag("heart-outline.png", style: "width: 24px; height: 24px;") %>
+            <% end %>
+          <% end %>
+        <% end %>
+      
+        <!-- Likes Count Right Next to the Like Icon -->
+        <span><%= post.likes.count %></span>
+      </div>
+      
+
+    </div>
+  <% end %>
+<% else %>
+  <p class="no-posts">No posts yet.</p>
+<% end %>

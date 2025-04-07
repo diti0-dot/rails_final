@@ -1,0 +1,6 @@
+document.getElementById('like-section-<%= @post.id %>').innerHTML = 
+  '<%= j button_to "Like (#{@post.likes.count})", 
+        post_likes_path(post_id: @post.id), 
+        method: :post,
+        remote: true,
+        class: "like-button" %>';
