@@ -1,16 +1,113 @@
+<div class="sidebar-container">
+    <div class="sidebar">
+      <h2 class="dashboard-toggle">Dashboard</h2>
+      
+      <div class="sidebar-content">
+        <div class="sidebar-menu">
+          <ul>
+            <li><%= link_to "Home", root_path %></li>
+            <li><%= link_to "Draw", draw_path, data: { turbolinks: false } %></li>
+            
+            <% if current_user %>
+              <li><%= link_to "Profile", user_path(current_user) %></li>
+            <% else %>
+              <li><%= link_to "Login", new_user_session_path %></li>
+            <% end %>
+            
+            <li><a href="#">Num Draw</a></li>
+            <li><a href="#">Tasks</a></li>
+            <li><a href="#">Communities</a></li>
+            
 
+          </ul>
+        </div>
 
-<nav class="navlinks">
-<%= link_to "Home", root_path%>
-<%= link_to "Draw", draw_path, data: { turbolinks: false } %>
+        
+        
+        <div class="sidebar-menu">
+          <ul>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Support</a></li>
+            <li><a href="#">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<% if user_signed_in? %>
-<%= link_to "Create", new_post_path, class: "create-post-link" %>
-<%= link_to user_path(current_user) do %>
-  <%= image_tag(current_user.image.attached? ? current_user.image : 'default-avatar.png', style: "display: inline-block; width:50px; height:50px; border-radius:50%;") %>
-<% end %>
-<%else%>
-<%= link_to "Sign up!", new_user_registration_path %>
-<%= link_to "login", new_user_session_path %>
-<%end%>
-</nav>
+  <style>
+.sidebar-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #2d6a4f;
+  color: #fff;
+  box-sizing: border-box;
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 60px; /* Just enough for the toggle */
+}
+
+.dashboard-toggle {
+  text-align: center;
+  padding: 20px 10px;
+  font-size: 24px;
+  color: #d8f3dc;
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  background-color: #2d6a4f;
+  z-index: 10;
+  margin: 0;
+}
+
+.sidebar-content {
+  padding: 0 20px 20px;
+  transition: all 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-content {
+  display: none;
+}
+
+.sidebar-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu ul li {
+  margin: 15px 0;
+}
+
+.sidebar-menu ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  display: block;
+  padding: 10px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu ul li a:hover {
+  background-color: #40916c;
+  padding-left: 15px;
+}
+
+.main-content {
+  flex: 1;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: -190px; /* Adjust based on your needs */
+}
+  </style>

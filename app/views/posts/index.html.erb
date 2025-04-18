@@ -1,58 +1,154 @@
-<% if @posts.any? %>
-  <% @posts.each do |post| %>
-    <div class="post-container" id="post-<%= post.id %>">
-      <!-- Post Header (User Image and Username) -->
-      <div class="post-header">
-        <%= image_tag(post.user&.image&.attached? ? post.user.image : 'default-avatar.png', 
-            style: "width: 50px; height: 50px; border-radius: 50%;") %>
-        <p><strong><%= post.user&.username || "Unknown User" %></strong></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Navbar -->
+    <div class="navbar">
+      <!-- Left side - Search box (fixed on left) -->
+      <div class="left-group">
+        <%= image_tag("magnify.png") %>
+        <input type="text" placeholder="Search..">
       </div>
-      
-      <!-- Post Title -->
-      <h2 class="post-title"><%= link_to post.title, post_path(post) %></h2>
-      
-      <!-- Post Body -->
-      <p class="post-body"><%= post.body %></p>
-
-      <!-- Post Image (if attached) -->
-      <%= image_tag(post.image, style: "width: 100px;") if post.image.attached? %>
-
-      <!-- Comment Link with Count -->
-      <%= link_to post_path(post) do %>
-        <%= image_tag('comment.png', style: "display: inline-block; width:20px; height:20px;") %>
-        <%= post.comments.count %>
-      <% end %>
-
-      <!-- Like/Unlike Button with Image & Count -->
-      <div id="like-section-<%= post.id %>" style="display: flex; align-items: center; gap: 5px;">
-        <% if user_signed_in? %>
-          <% like = current_user.likes.find_by(post_id: post.id) %>
-          <% if like %>
-            <%= button_to post_like_path(post_id: post.id, id: like.id), 
-                  method: :delete,
-                  remote: true,
-                  class: "like-button",
-                  style: "border: none; background: none; padding: 0;" do %>
-              <%= image_tag("heart.png", style: "width: 24px; height: 24px;") %>
-            <% end %>
+    
+      <!-- Right side container (everything else) -->
+      <div class="right-container">
+        <!-- Top row - bell, avatar, username -->
+        <div class="right-top">
+          <% if current_user %>
+            <%= image_tag(current_user.image.attached? ? current_user.image : 'default-avatar.png', 
+                          style: "width: 40px; height: 40px; border-radius: 50%;") %>
+            <h3><%= current_user.username %></h3>
           <% else %>
-            <%= button_to post_likes_path(post_id: post.id), 
-                  method: :post,
-                  remote: true,
-                  class: "like-button",
-                  style: "border: none; background: none; padding: 0;" do %>
-              <%= image_tag("heart-outline.png", style: "width: 24px; height: 24px;") %>
-            <% end %>
+            <p>Please log in to see your profile.</p>
           <% end %>
-        <% end %>
-      
-        <!-- Likes Count Right Next to the Like Icon -->
-        <span><%= post.likes.count %></span>
+          <%= image_tag("bell.png") %>
+        </div>
+        
+    
+        <!-- Bottom row - buttons -->
+        <div class="right-bottom">
+          <button>New Post</button>
+          <button>Upload</button>
+          <button>Share</button>
+        </div>
       </div>
-      
-
     </div>
-  <% end %>
-<% else %>
-  <p class="no-posts">No posts yet.</p>
-<% end %>
+
+    <!-- Content -->
+    <div class="words">
+      <h1>Recent Posts</h1>
+      <h1>Announcements</h1>
+    </div>
+
+    <div class="content">
+      <div class="grid-container">
+        <% if @posts.any? %>
+          <% @posts.each do |post| %>
+            <div class="card" id="post-<%= post.id %>">
+              <!-- Post Header (User Image and Username) -->
+              <div class="post-header">
+                <%= image_tag(post.user&.image&.attached? ? post.user.image : 'default-avatar.png', 
+                    style: "width: 40px; height: 40px; border-radius: 50%;") %>
+                <p><strong><%= post.user&.username || "Unknown User" %></strong></p>
+              </div>
+              
+              <!-- Post Title -->
+              <h3><%= link_to post.title, post_path(post) %></h3>
+              
+              <!-- Post Body -->
+              <p class="post-body"><%= truncate(post.body, length: 100) %></p>
+
+              <!-- Post Image (if attached) -->
+              <% if post.image.attached? %>
+                <div class="post-image">
+                  <%= image_tag(post.image, style: "max-width: 100%; max-height: 150px;") %>
+                </div>
+              <% end %>
+
+              <div class="post-actions">
+                <!-- Comment Link with Count -->
+                <%= link_to post_path(post), class: "action-link" do %>
+                  <%= image_tag('comment.png', style: "width:20px; height:20px;") %>
+                  <%= post.comments.count %>
+                <% end %>
+
+                <!-- Like/Unlike Button with Count -->
+                <div id="like-section-<%= post.id %>" class="action-link">
+                  <% if user_signed_in? %>
+                    <% like = current_user.likes.find_by(post_id: post.id) %>
+                    <% if like %>
+                      <%= button_to post_like_path(post_id: post.id, id: like.id), 
+                            method: :delete,
+                            remote: true,
+                            class: "like-button",
+                            style: "border: none; background: none; padding: 0;" do %>
+                        <%= image_tag("heart.png", style: "width: 20px; height: 20px;") %>
+                      <% end %>
+                    <% else %>
+                      <%= button_to post_likes_path(post_id: post.id), 
+                            method: :post,
+                            remote: true,
+                            class: "like-button",
+                            style: "border: none; background: none; padding: 0;" do %>
+                        <%= image_tag("heart-outline.png", style: "width: 20px; height: 20px;") %>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                  <span><%= post.likes.count %></span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="card no-posts">
+            <p>No posts yet.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="two-things">
+        <div class="announcements">
+          <div class="aa_card">
+            <h3>Site Maintenance</h3>
+            <p>Site will be down for 2 hours for maintenance</p>
+          </div>
+          <div class="aa_card">
+            <h3>Community Share Day</h3>
+            <p>Share your projects with the community</p>
+          </div>
+          <div class="aa_card">
+            <h3>Updated Privacy Policy</h3>
+            <p>Read the updated privacy policy</p>
+          </div>
+        </div>
+
+        <h1>Trending</h1>
+        <div class="trending">
+          <% User.joins(posts: :likes)
+                 .select('users.*, posts.id as post_id, posts.title as post_title, COUNT(likes.id) as likes_count')
+                 .group('users.id, posts.id, posts.title')
+                 .order('likes_count DESC')
+                 .limit(3)
+                 .each do |user| %>
+            <div class="trend">
+              <%= image_tag(user.image.attached? ? user.image : 'default-avatar.png', 
+                   style: "width: 40px; height: 40px; border-radius: 50%;") %>
+              <h4>@<%= user.username %></h4>
+              <p class="green">
+                <%= link_to user.post_title, post_path(user.post_id) %> - <%= user.likes_count %> likes
+              </p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,59 +1,289 @@
 <% if user_signed_in? %>
-  <div class="user">
-    <!-- User Header (Profile Image, Username, and Bio) -->
-    <div class="post-header">
+  <div class="forest-profile">
+    <!-- User Header -->
+    <div class="forest-profile__header">
       <%= image_tag(@user.image.attached? ? @user.image : 'default-avatar.png', 
-          style: "width: 50px; height: 50px; border-radius: 50%;") %>
-      <p><strong><%= @user.username %></strong></p>
-      <p><%= @user.bio || "No bio available." %></p>
+          class: "forest-profile__avatar") %>
+      <div class="forest-profile__info">
+        <h1 class="forest-profile__username"><%= @user.username %></h1>
+        <p class="forest-profile__bio"><%= @user.bio || "No bio available." %></p>
+      </div>
     </div>
 
-    <!-- Follow/Following and Post Count -->
-    <div class="user-stats">
-      <span><strong>120</strong> Followers</span> | 
-      <span><strong>80</strong> Following</span> | 
-      <span><strong><%= @user.posts.count %></strong> Posts</span>
+    <!-- User Stats -->
+    <div class="forest-profile__stats">
+      <div class="forest-stat">
+        <span class="forest-stat__count">120</span>
+        <span class="forest-stat__label">Followers</span>
+      </div>
+      <div class="forest-stat">
+        <span class="forest-stat__count">80</span>
+        <span class="forest-stat__label">Following</span>
+      </div>
+      <div class="forest-stat">
+        <span class="forest-stat__count"><%= @user.posts.count %></span>
+        <span class="forest-stat__label">Posts</span>
+      </div>
     </div>
 
-    <!-- Edit Profile Link (Using edit_user_registration_path) -->
-    <div class="edit-profile-link">
-      <%= link_to "Edit Profile", edit_user_registration_path, class: "btn btn-secondary" %>
+    <!-- Action Buttons -->
+    <div class="forest-profile__actions">
+      <% if current_user == @user %>
+        <%= link_to "Edit Profile", edit_user_registration_path, class: "forest-btn forest-btn--secondary" %>
+      <% else %>
+        <%= button_to "Follow", follow_user_path(@user), method: :post, class: "forest-btn forest-btn--primary" %>
+      <% end %>
     </div>
-
-    <!-- Follow/Unfollow Button (for now, just a placeholder) -->
-    <% if current_user != @user %>
-      <%= button_to "Follow", follow_user_path(@user), method: :post, class: "btn btn-primary" %>
-    <% end %>
 
     <!-- User Posts -->
-    <% if @user.posts.any? %>
-      <% @user.posts.each do |post| %>
-        <div class="post-container">
-          <!-- Post Title -->
-          <h2 class="post-title"><%= post.title %></h2>
+    <div class="forest-posts">
+      <% if @user.posts.any? %>
+        <% @user.posts.each do |post| %>
+          <div class="forest-post">
+            <h2 class="forest-post__title"><%= post.title %></h2>
+            <p class="forest-post__excerpt"><%= truncate(post.body, length: 100) %></p>
 
-          <!-- Post Body -->
-          <p class="post-body"><%= truncate(post.body, length: 100) %></p>
+            <% if post.image.attached? %>
+              <div class="forest-post__media">
+                <img src="<%= url_for(post.image) %>" alt="Post image" class="forest-post__image">
+              </div>
+            <% end %>
 
-          <!-- Post Image (if attached) -->
-          <% if post.image.attached? %>
-            <img class="post-image" src="<%= url_for(post.image) %>" alt="Post image">
-          <% end %>
-
-          <!-- Post Actions (Edit/Delete if current_user) -->
-          <% if post.user == current_user %>
-            <div class="post-actions">
-              <%= link_to "Edit", edit_post_path(post), class: "create-post-link" %>
-              <%= button_to "Delete", post, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "create-post-link" %>
-            </div>
-          <% end %>
+            <% if post.user == current_user %>
+              <div class="forest-post__management">
+                <%= link_to "Edit", edit_post_path(post), class: "forest-link" %>
+                <%= button_to "Delete", post, 
+                    method: :delete, 
+                    data: { turbo_confirm: "Are you sure?" }, 
+                    class: "forest-link forest-link--danger" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="forest-empty">
+          <p class="forest-empty__message">You haven't made any posts yet.</p>
+          <%= link_to "Create a Post", new_post_path, class: "forest-btn forest-btn--primary" %>
         </div>
       <% end %>
-    <% else %>
-      <p>You haven’t made any posts yet.</p>
-      <%= link_to "Create a Post", new_post_path, class: "btn btn-primary" %>
-    <% end %>
+    </div>
   </div>
 <% else %>
-  <p>Please <%= link_to "Login", new_user_session_path %> to see your posts.</p>
+  <div class="forest-guest">
+    <p class="forest-guest__message">Please <%= link_to "Login", new_user_session_path, class: "forest-link" %> to see your posts.</p>
+  </div>
 <% end %>
+
+<style>
+  /* Profile Container */
+.forest-profile {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(46, 91, 55, 0.1);
+}
+
+/* Profile Header */
+.forest-profile__header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.forest-profile__avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4a6b3d;
+}
+
+.forest-profile__info {
+  flex: 1;
+}
+
+.forest-profile__username {
+  color: #2d3a25;
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+}
+
+.forest-profile__bio {
+  color: #5a6d52;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Stats Section */
+.forest-profile__stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 0;
+  margin: 20px 0;
+  border-top: 1px solid #e0e6d3;
+  border-bottom: 1px solid #e0e6d3;
+}
+
+.forest-stat {
+  text-align: center;
+}
+
+.forest-stat__count {
+  display: block;
+  font-weight: 700;
+  color: #3a5a40;
+  font-size: 1.2rem;
+}
+
+.forest-stat__label {
+  color: #5a7d4e;
+  font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.forest-profile__actions {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Posts Grid */
+.forest-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Individual Post */
+.forest-post {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #e0e6d3;
+  transition: transform 0.2s;
+}
+
+.forest-post:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(46, 91, 55, 0.1);
+}
+
+.forest-post__title {
+  color: #2d3a25;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.forest-post__excerpt {
+  color: #5a6d52;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.forest-post__media {
+  margin: 10px 0;
+}
+
+.forest-post__image {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid #d4e0c9;
+}
+
+.forest-post__management {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #e0e6d3;
+  display: flex;
+  gap: 15px;
+}
+
+/* Empty State */
+.forest-empty {
+  text-align: center;
+  padding: 40px 20px;
+  grid-column: 1 / -1;
+}
+
+.forest-empty__message {
+  color: #5a7d4e;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+/* Guest State */
+.forest-guest {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8f9f5;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.forest-guest__message {
+  color: #5a7d4e;
+  font-size: 1.1rem;
+}
+
+/* Button Styles */
+.forest-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+}
+
+.forest-btn--primary {
+  background-color: #4a6b3d;
+  color: white;
+}
+
+.forest-btn--primary:hover {
+  background-color: #3a5a30;
+}
+
+.forest-btn--secondary {
+  background-color: #e0e6d3;
+  color: #3a5a40;
+}
+
+.forest-btn--secondary:hover {
+  background-color: #d4e0c9;
+}
+
+/* Link Styles */
+.forest-link {
+  color: #5a7d4e;
+  text-decoration: none;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.forest-link:hover {
+  color: #3a5a40;
+  text-decoration: underline;
+}
+
+.forest-link--danger {
+  color: #b85c5c;
+}
+
+.forest-link--danger:hover {
+  color: #9e4a4a;
+}
+</style>

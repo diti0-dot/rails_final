@@ -3,97 +3,112 @@
 <div class="drawing-app">
   <header class="app-header">
     <h1 class="app-title">Draw Now!</h1>
+    
   </header>
+  <div class="drawing-container">
+    <div class="drawing-main">
+      <section class="control-panel">
+        <div class="control-group">
+          <h2 class="control-group-title">Canvas Settings</h2>
+          
+          <form id="grid" class="control-form">
+            <div class="form-group">
+              <label for="gridSize" class="form-label">Grid size (max 100)</label>
+              <input type="number" id="gridSize" name="gridSize" min="1" max="100" value="20" required class="form-input">
+            </div>
+            <button type="submit" class="form-button">Update Grid</button>
+          </form>
 
-  <main class="app-container">
-    <section class="control-panel">
-      <div class="control-group">
-        <h2 class="control-group-title">Canvas Settings</h2>
-        
-        <form id="grid" class="control-form">
-          <div class="form-group">
-            <label for="gridSize" class="form-label">Grid size (max 100)</label>
-            <input type="number" id="gridSize" name="gridSize" min="1" max="100" value="20" required class="form-input">
-          </div>
-          <button type="submit" class="form-button">Update Grid</button>
-        </form>
-
-        <form id="canvas" class="control-form">
-          <div class="form-group">
-            <label for="canvasSize" class="form-label">Canvas size (max 1000px)</label>
-            <input type="number" id="canvasSize" name="canvasSize" min="100" max="1000" value="400" required class="form-input">
-          </div>
-          <button type="submit" class="form-button">Resize Canvas</button>
-        </form>
-      </div>
-
-      <div class="control-group">
-        <h2 class="control-group-title">Colors</h2>
-        
-        <div class="form-group">
-          <label for="bgColorPicker" class="form-label">Background Color:</label>
-          <input type="color" id="bgColorPicker" value="#ffffff" class="color-picker">
-          <button id="applyBgColor" class="color-button">Apply</button>
+          <form id="canvas" class="control-form">
+            <div class="form-group">
+              <label for="canvasSize" class="form-label">Canvas size (max 1000px)</label>
+              <input type="number" id="canvasSize" name="canvasSize" min="100" max="1000" value="400" required class="form-input">
+            </div>
+            <button type="submit" class="form-button">Resize Canvas</button>
+          </form>
         </div>
 
-        <div class="form-group">
-          <label for="colorPicker" class="form-label">Brush Color:</label>
-          <input type="color" id="colorPicker" value="#000000" class="color-picker">
-        </div>
-
-        <div class="form-group used-colors">
-            <label class="form-label">Recent colors used:</label>
-            <div id="usedColorsContainer" class="color-swatches"></div>
+        <div class="control-group">
+          <h2 class="control-group-title">Colors</h2>
+          
+          <div class="form-group">
+            <label for="bgColorPicker" class="form-label">Background Color:</label>
+            <input type="color" id="bgColorPicker" value="#ffffff" class="color-picker">
+            <button id="applyBgColor" class="color-button">Apply</button>
           </div>
+
+          <div class="form-group">
+            <label for="colorPicker" class="form-label">Brush Color:</label>
+            <input type="color" id="colorPicker" value="#000000" class="color-picker">
+          </div>
+
+          <div class="form-group used-colors">
+              <label class="form-label">Recent colors used:</label>
+              <div id="usedColorsContainer" class="color-swatches"></div>
+            </div>
           
 
-        <div class="form-group chess-colors">
-          <label class="form-label">Chess Pattern:</label>
-          <div class="chess-color-pickers">
-            <div>
-              <label for="color1" class="sub-label">Color 1:</label>
-              <input type="color" id="color1" value="#ffffff" class="color-picker">
-            </div>
-            <div>
-              <label for="color2" class="sub-label">Color 2:</label>
-              <input type="color" id="color2" value="#e0e0e0" class="color-picker">
+          <div class="form-group chess-colors">
+            <label class="form-label">Chess Pattern:</label>
+            <div class="chess-color-pickers">
+              <div>
+                <label for="color1" class="sub-label">Color 1:</label>
+                <input type="color" id="color1" value="#ffffff" class="color-picker">
+              </div>
+              <div>
+                <label for="color2" class="sub-label">Color 2:</label>
+                <input type="color" id="color2" value="#e0e0e0" class="color-picker">
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="control-group">
-        <h2 class="control-group-title">Tools</h2>
-        <div class="tool-buttons">
-          <button id="eraser" class="tool-button">Eraser</button>
-          <button id="clearCanvas" class="tool-button">Clear</button>
-          <button id="toggleGrid" class="tool-button">Show Grid</button>
+        <div class="control-group">
+          <h2 class="control-group-title">Tools</h2>
+          <div class="tool-buttons">
+            <button id="eraser" class="tool-button">Eraser</button>
+            <button id="clearCanvas" class="tool-button">Clear</button>
+            <button id="toggleGrid" class="tool-button">Show Grid</button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="drawing-area">
-      <div class="canvas-wrapper">
-        <canvas id="pixelCanvas" class="drawing-canvas"></canvas>
-      </div>
-    </section>
+      <section class="drawing-area">
+        <div class="canvas-wrapper">
+          <canvas id="pixelCanvas" class="drawing-canvas"></canvas>
+        </div>
+        <div id="post-form-container" style="display: none;">
+          <h3>Post Your Creation</h3>
+          <%= render 'posts/form', post: Post.new %>
+        </div>
+      </section>
+         
+      <section class="action-buttons">
+        <button id="saveDrawing" class="action-button download-button">Download</button>
+        <button id="uploadDrawing" class="action-button upload-button">Post to Feed</button>
+      </section>
+    </div>
 
-    <div id="post-form-container" style="display: none;">
-        <%= render 'posts/form', post: Post.new %>
+    <div class="inspiration-sidebar">
+      <h3><i class="fas fa-lightbulb"></i> Inspiration Board</h3>
+      
+      <div class="search-controls">
+        <input type="text" 
+               id="pexels-search" 
+               placeholder="Search nature, art..." 
+               aria-label="Search for inspiration images">
+        <button id="pexels-search-btn" aria-label="Search">
+          <i class="fas fa-search"></i> Search
+        </button>
       </div>
       
-    <section class="action-buttons">
-      <button id="saveDrawing" class="action-button download-button">Download</button>
-      <button id="uploadDrawing" class="action-button upload-button">Post to Feed</button>
-    </section>
-  </main>
+      <div class="loading-spinner" id="pexels-loading" style="display:none;">
+        <i class="fas fa-spinner fa-spin"></i> Loading...
+      </div>
+      
+      <div class="image-grid" id="pexels-results"></div>
+    </div>
+  </div>
 </div>
 
-
-
-
-
-
-
-
-
+<%= javascript_include_tag 'inspiration_board' %>

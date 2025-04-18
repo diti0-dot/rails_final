@@ -25,12 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let showGrid = true;
     let chessMode = false;
     let cellSize = 0;
-    const usedColors = [];
+    let usedColors = [];
     let canvasData = [];
-    
 
-
+    // Initialize with default values
     canvasSizeInput.value = 400;
+    gridSizeInput.value = 20;
+
     // ========== CANVAS FUNCTIONS ========== //
     
     function initCanvas() {
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = parseInt(gridSizeInput.value);
         for (let y = 0; y < gridSize; y++) {
             for (let x = 0; x < gridSize; x++) {
-                if (canvasData[y][x]) {
+                if (canvasData[y][x] && !chessMode) {
                     ctx.fillStyle = canvasData[y][x];
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 }
@@ -137,14 +138,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             ctx.fillStyle = color;
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-            canvasData[y][x] = color;
+            canvasData[y][x] = isErasing ? null : color;
             
             if (showGrid) {
                 ctx.strokeStyle = '#ddd';
                 ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
             }
             
-            if (!isErasing) {
+            if (!isErasing && !usedColors.includes(currentColor)) {
                 addToUsedColors(currentColor);
             }
         }
@@ -168,9 +169,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleEraser() {
         isErasing = !isErasing;
         eraserBtn.classList.toggle('active', isErasing);
-        eraserBtn.textContent = isErasing ? "Erasing Mode" : "Drawing Mode";
+        eraserBtn.textContent = isErasing ? "Erasing" : "Eraser";
     }
-    
 
     function toggleGridVisibility() {
         showGrid = !showGrid;
@@ -179,19 +179,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearCanvas() {
-        initializeCanvasData();
-        drawCanvas();
+        if (confirm('Are you sure you want to clear the canvas?')) {
+            initializeCanvasData();
+            drawCanvas();
+        }
     }
 
     // ========== COLOR FUNCTIONS ========== //
     function addToUsedColors(color) {
-        const index = usedColors.indexOf(color);
-        if (index !== -1) {
-            usedColors.splice(index, 1);
-        }
+        // Remove color if it already exists
+        usedColors = usedColors.filter(c => c !== color);
         
+        // Add to beginning of array
         usedColors.unshift(color);
         
+        // Limit to 5 colors
         if (usedColors.length > 5) {
             usedColors.pop();
         }
@@ -207,19 +209,19 @@ document.addEventListener('DOMContentLoaded', function() {
             colorBox.className = 'color-swatch';
             colorBox.style.backgroundColor = color;
             colorBox.title = color;
+            colorBox.dataset.color = color;
             
-            colorBox.addEventListener('click', () => {
+            colorBox.addEventListener('click', function() {
                 colorPicker.value = color;
                 currentColor = color;
                 isErasing = false;
                 eraserBtn.classList.remove('active');
+                eraserBtn.textContent = "Eraser";
             });
             
             usedColorsContainer.appendChild(colorBox);
         });
     }
-
-   
 
     // ========== SAVE/EXPORT FUNCTIONS ========== //
     function saveDrawing() {
@@ -228,54 +230,75 @@ document.addEventListener('DOMContentLoaded', function() {
         tempCanvas.height = canvas.height;
         const tempCtx = tempCanvas.getContext('2d');
         
-        // Draw current canvas content
+        // Draw background
         if (chessMode) {
             drawChessBackgroundOnCanvas(tempCtx);
         } else {
             tempCtx.fillStyle = bgColorPicker.value;
             tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
         }
-        redrawPixelsOnCanvas(tempCtx);
+        
+        // Draw pixels
+        const gridSize = parseInt(gridSizeInput.value);
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                if (canvasData[y][x] && !chessMode) {
+                    tempCtx.fillStyle = canvasData[y][x];
+                    tempCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
         
         // Create download
         const link = document.createElement('a');
-        link.download = 'pixel-art.png';
+        link.download = 'pixel-art-' + new Date().toISOString().slice(0, 10) + '.png';
         link.href = tempCanvas.toDataURL('image/png');
         link.click();
     }
     
     function uploadDrawing() {
+        // Create a temporary canvas to get the image data
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = canvas.height;
         const tempCtx = tempCanvas.getContext('2d');
         
-        // Draw current canvas content
+        // Draw background
         if (chessMode) {
             drawChessBackgroundOnCanvas(tempCtx);
         } else {
             tempCtx.fillStyle = bgColorPicker.value;
             tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
         }
-        redrawPixelsOnCanvas(tempCtx);
         
-        // Get the drawing data
-        const drawingData = tempCanvas.toDataURL('image/png');
-        
-        // Show the form and populate the hidden field
-        const formContainer = document.getElementById('post-form-container');
-        const drawingInput = formContainer.querySelector('input[name="post[drawing_data]"]');
-        
-        if (drawingInput) {
-            drawingInput.value = drawingData;
-        } else {
-            // Create hidden input if it doesn't exist
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'post[drawing_data]';
-            hiddenInput.value = drawingData;
-            formContainer.querySelector('form').appendChild(hiddenInput);
+        // Draw pixels
+        const gridSize = parseInt(gridSizeInput.value);
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                if (canvasData[y][x] && !chessMode) {
+                    tempCtx.fillStyle = canvasData[y][x];
+                    tempCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
         }
+        
+        // Get the image data
+        const imageData = tempCanvas.toDataURL('image/png');
+        
+        // Show the form and populate the fields
+        const formContainer = document.getElementById('post-form-container');
+        const form = formContainer.querySelector('form');
+        
+        // Set the drawing data in the hidden field
+        form.querySelector('#post_drawing_data').value = imageData;
+        
+        // Create a preview of the drawing
+        const previewDiv = form.querySelector('#drawing-preview');
+        previewDiv.innerHTML = '<h4>Your Drawing Preview:</h4>';
+        const previewImg = document.createElement('img');
+        previewImg.src = imageData;
+        previewImg.style.maxWidth = '200px';
+        previewDiv.appendChild(previewImg);
         
         // Show the form
         formContainer.style.display = 'block';
@@ -283,11 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Scroll to the form
         formContainer.scrollIntoView({ behavior: 'smooth' });
     }
-
-    
-       
-
-
     function drawChessBackgroundOnCanvas(context) {
         const gridSize = parseInt(gridSizeInput.value);
         const color1 = color1Input.value;
@@ -297,18 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let x = 0; x < gridSize; x++) {
                 context.fillStyle = (x + y) % 2 === 0 ? color1 : color2;
                 context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-            }
-        }
-    }
-
-    function redrawPixelsOnCanvas(context) {
-        const gridSize = parseInt(gridSizeInput.value);
-        for (let y = 0; y < gridSize; y++) {
-            for (let x = 0; x < gridSize; x++) {
-                if (canvasData[y][x]) {
-                    context.fillStyle = canvasData[y][x];
-                    context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-                }
             }
         }
     }
@@ -333,35 +339,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Color and tool controls
-        colorPicker.addEventListener('change', (e) => {
+        colorPicker.addEventListener('input', (e) => {
             currentColor = e.target.value;
             isErasing = false;
             eraserBtn.classList.remove('active');
-            addToUsedColors(currentColor);
+            eraserBtn.textContent = "Eraser";
         });
         
         applyBgColorBtn.addEventListener('click', (e) => {
             e.preventDefault();
             applyBackgroundColor();
         });
-
-        const postForm = document.getElementById('post-form-container')?.querySelector('form');
-        if (postForm) {
-            postForm.addEventListener('submit', function(e) {
-                // You can add additional validation here if needed
-            });
-        }
         
+        color1Input.addEventListener('input', updateChessBoard);
+        color2Input.addEventListener('input', updateChessBoard);
         
         eraserBtn.addEventListener('click', toggleEraser);
         clearCanvasBtn.addEventListener('click', clearCanvas);
         toggleGridBtn.addEventListener('click', toggleGridVisibility);
         saveDrawingBtn.addEventListener('click', saveDrawing);
         uploadDrawingBtn.addEventListener('click', uploadDrawing);
-        
-        // Chess board colors
-        color1Input.addEventListener('change', updateChessBoard);
-        color2Input.addEventListener('change', updateChessBoard);
     }
 
     // Initialize the app

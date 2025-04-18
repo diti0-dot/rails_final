@@ -1,64 +1,265 @@
-<div class="post-container">
+<div class="forest-post">
   <!-- Post Header (User Image and Username) -->
-  <div class="post-header">
+  <div class="forest-post__author">
     <%= image_tag(current_user.image.attached? ? current_user.image : 'default-avatar.png', 
-        style: "width: 50px; height: 50px; border-radius: 50%;") %>
-    <p><strong><%= @post.user.username %></strong></p>
+        class: "forest-post__avatar") %>
+    <span class="forest-post__username"><%= @post.user.username %></span>
   </div>
 
-  <!-- Post Title -->
-  <h2 class="post-title"><%= @post.title %></h2>
-  
-  <!-- Post Body -->
-  <p class="post-body"><%= @post.body %></p>
+  <!-- Post Content -->
+  <div class="forest-post__content">
+    <h2 class="forest-post__title"><%= @post.title %></h2>
+    <p class="forest-post__description"><%= @post.body %></p>
+    
+    <% if @post.image.attached? %>
+      <div class="forest-post__media">
+        <img src="<%= url_for(@post.image) %>" alt="Post image" class="forest-post__image">
+      </div>
+    <% end %>
+  </div>
 
-  <!-- Post Image (if attached) -->
-  <% if @post.image.attached? %>
-    <img class="post-image" src="<%= url_for(@post.image) %>" alt="post img">
-  <% end %>
+  <!-- Post Engagement -->
+  <div class="forest-post__stats">
+    <span class="forest-post__comment-count"><%= @post.comments.count %> comments</span>
+  </div>
 
-  <p>Comments <%= @post.comments.count %></p>
+  <!-- Comments Section -->
+  <div class="forest-comments">
+    <% if @post.comments.any? %>
+      <ul class="forest-comments__list">
+        <% @post.comments.each do |comment| %>
+          <li class="forest-comments__item">
+            <div class="forest-comments__header">
+              <%= image_tag(comment.user.image.attached? ? comment.user.image : 'default-avatar.png', 
+                  class: "forest-comments__avatar") %>
+              <span class="forest-comments__user"><%= comment.user.username %></span>
+            </div>
+            <p class="forest-comments__text"><%= comment.body %></p>
+            <% if comment.user == current_user %>
+              <div class="forest-comments__actions">
+                <%= link_to "Edit", edit_post_comment_path(@post, comment), class: "forest-btn forest-btn--text" %>
+                <%= button_to 'Delete', [comment.post, comment],
+                    method: :delete,
+                    data: { confirm: "Are you sure?" },
+                    class: "forest-btn forest-btn--text" %>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
 
-  <% if @post.comments.any? %>
-    <ul>
-      <% @post.comments.each do |comment| %>
-        <li>
-          <!-- Display Profile Picture and Username -->
-          <div class="comment-header">
-            <%= image_tag(comment.user.image.attached? ? comment.user.image : 'default-avatar.png', 
-                style: "width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;") %>
-            <strong><%= comment.user.username %>:</strong>
-          </div>
+  <!-- Add Comment -->
+  <div class="forest-comment-form">
+    <% if user_signed_in? %>
+      <h4 class="forest-comment-form__title">Add a Comment:</h4>
+      <%= render 'comments/form', post: @post, comment: Comment.new %>
+    <% else %>
+      <p class="forest-comment-form__prompt">
+        <%= link_to "Log in to add a comment", new_user_session_path, class: "forest-link" %>
+      </p>
+    <% end %>
+  </div>
 
-          <!-- Comment Body -->
-          <p><%= comment.body %></p>
-
-          <!-- Edit/Delete buttons for the comment owner -->
-          <% if comment.user == current_user %> 
-            <%= link_to "Edit", edit_post_comment_path(@post, comment) %>
-            <%= button_to 'Destroy Comment', [comment.post, comment],
-                method: :delete,
-                data: { confirm: "Are you sure?" } %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p>No comments yet. Be the first to comment!</p>
-  <% end %>
-
-  <% if user_signed_in? %>
-    <h4>Add a Comment:</h4>
-    <%= render 'comments/form', post: @post, comment: Comment.new %>
-  <% else %>
-    <p><%= link_to "Log in to add a comment", new_user_session_path %></p>
-  <% end %>
-
-  <!-- Post Actions (Edit/Delete if current_user) -->
+  <!-- Post Actions -->
   <% if @post.user == current_user %>
-    <div class="post-actions">
-      <%= link_to "Edit", edit_post_path(@post), class: "create-post-link" %>
-      <%= button_to "Delete", @post, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "create-post-link" %>
+    <div class="forest-post__actions">
+      <%= link_to "Edit Post", edit_post_path(@post), class: "forest-btn forest-btn--primary" %>
+      <%= button_to "Delete Post", @post, 
+          method: :delete, 
+          data: { turbo_confirm: "Are you sure?" }, 
+          class: "forest-btn forest-btn--danger" %>
     </div>
   <% end %>
 </div>
+
+<style>
+  /* Base Styles */
+.forest-post {
+  background-color: #f8f9f5;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #e0e6d3;
+  box-shadow: 0 2px 8px rgba(46, 91, 55, 0.08);
+}
+
+/* Author Section */
+.forest-post__author {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.forest-post__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4a6b3d;
+}
+
+.forest-post__username {
+  margin-left: 12px;
+  font-weight: 600;
+  color: #3a5a40;
+}
+
+/* Content Section */
+.forest-post__title {
+  color: #2d3a25;
+  margin-bottom: 12px;
+  font-size: 1.4rem;
+}
+
+.forest-post__description {
+  color: #4a5c43;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.forest-post__media {
+  margin: 15px 0;
+}
+
+.forest-post__image {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid #d4e0c9;
+}
+
+/* Stats Section */
+.forest-post__stats {
+  padding: 12px 0;
+  border-top: 1px solid #e0e6d3;
+  border-bottom: 1px solid #e0e6d3;
+  margin: 20px 0;
+}
+
+.forest-post__comment-count {
+  color: #5a7d4e;
+  font-size: 0.9rem;
+}
+
+/* Comments Section */
+.forest-comments {
+  margin-top: 20px;
+}
+
+.forest-comments__list {
+  list-style: none;
+  padding: 0;
+}
+
+.forest-comments__item {
+  padding: 15px 0;
+  border-bottom: 1px solid #e8efe2;
+}
+
+.forest-comments__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.forest-comments__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #a5c08d;
+}
+
+.forest-comments__user {
+  margin-left: 10px;
+  font-size: 0.9rem;
+  color: #4a6b3d;
+  font-weight: 500;
+}
+
+.forest-comments__text {
+  color: #5a6d52;
+  margin: 8px 0 10px 42px;
+  font-size: 0.95rem;
+}
+
+.forest-comments__actions {
+  margin-left: 42px;
+}
+
+/* Comment Form */
+.forest-comment-form {
+  margin-top: 25px;
+}
+
+.forest-comment-form__title {
+  color: #3a5a40;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.forest-comment-form__prompt {
+  color: #5a7d4e;
+  font-size: 0.9rem;
+}
+
+/* Buttons & Links */
+.forest-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.forest-btn--primary {
+  background-color: #4a6b3d;
+  color: white;
+}
+
+.forest-btn--primary:hover {
+  background-color: #3a5a30;
+}
+
+.forest-btn--danger {
+  background-color: #e8c4c4;
+  color: #8b2e2e;
+}
+
+.forest-btn--danger:hover {
+  background-color: #e0b3b3;
+}
+
+.forest-btn--text {
+  background: none;
+  color: #5a7d4e;
+  padding: 4px 8px;
+  text-decoration: underline;
+}
+
+.forest-btn--text:hover {
+  color: #3a5a40;
+}
+
+.forest-link {
+  color: #5a7d4e;
+  text-decoration: none;
+}
+
+.forest-link:hover {
+  text-decoration: underline;
+  color: #3a5a40;
+}
+
+/* Post Actions */
+.forest-post__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e6d3;
+}
+</style>
