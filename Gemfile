@@ -59,5 +59,5 @@ group :test do
 end
 
 gem "devise", "~> 4.9"
-gem 'httparty', '~> 0.22.0'
+gem 'httparty', '~> 0.23.1'
 gem 'dotenv-rails', '~> 3.1'
