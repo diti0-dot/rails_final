@@ -5,7 +5,8 @@ Rails.application.routes.draw do
   # Devise routes with custom controllers
   devise_for :users, controllers: {
     sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    omniauth_callbacks: 'users/omniauth_callbacks'
   }
 
   # Posts with comments and likes
@@ -29,5 +30,10 @@ Rails.application.routes.draw do
   resources :users
 
   # Root route
-  root "posts#index"
+  
+
+  scope "(:locale)", locale: /en|es/ do
+ root "posts#index"
+end
+
 end

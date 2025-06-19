@@ -46,8 +46,18 @@ class PostsController < ApplicationController
   end
 
   def destroy
-    @post.destroy
-    redirect_to posts_url, notice: 'Post was successfully deleted.'
+     @post = Post.find(params[:id])
+  
+  unless @post.can_be_deleted_by?(current_user)
+    flash[:alert] = "You don't have permission to delete this post"
+    redirect_to posts_path and return
+  end
+
+  @post.destroy
+  respond_to do |format|
+    format.html { redirect_to posts_url, notice: 'Post was successfully deleted.' }
+    format.json { head :no_content }
+  end
   end
 
   # Separate endpoint for handling drawing uploads

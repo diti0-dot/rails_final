@@ -1,0 +1,7 @@
+<%= turbo_stream.append "post-#{@post.id}-comments" do %>
+  <%= render 'comments/comment', comment: @comment %>
+<% end %>
+
+<%= turbo_stream.replace "new-comment-form" do %>
+  <%= render 'comments/form', comment: Comment.new, post: @post %>
+<% end %>

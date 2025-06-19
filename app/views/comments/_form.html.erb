@@ -1,8 +1,14 @@
-<%= form_with(model: [ @post, @comment ]) do |form| %>
-    <div class="form-group">
-      <%= form.label :body, "Your Comment" %> <!-- Use content here -->
-      <%= form.text_area :body, class: "form-control", rows: 3 %> <!-- content instead of body -->
-    </div>
-    <%= form.submit "Submit", class: "btn btn-primary" %>
-  <% end %>
+<%= form_with(model: [post, comment], 
+              id: dom_id(comment, 'form'),
+              class: 'comment-edit-form') do |f| %>
+  <%= f.text_area :body, 
+                  placeholder: "Write a comment...", 
+                  rows: 3,
+                  class: 'comment-edit-textarea' %>
   
+  <div class="comment-edit-actions">
+    <%= f.submit "Post", class: "comment-update-btn" %>
+    <%= link_to "Cancel", post_path(post), 
+                class: "comment-cancel-btn" %>
+  </div>
+<% end %>

@@ -1,265 +1,328 @@
-<div class="forest-post">
-  <!-- Post Header (User Image and Username) -->
-  <div class="forest-post__author">
-    <%= image_tag(current_user.image.attached? ? current_user.image : 'default-avatar.png', 
-        class: "forest-post__avatar") %>
-    <span class="forest-post__username"><%= @post.user.username %></span>
+<div class="post-container">
+  <!-- Post Header -->
+  <div class="post-header">
+    <div class="author-info">
+      <%= image_tag(@post.user.image.attached? ? @post.user.image : 'default-avatar.png', 
+          class: "user-avatar") %>
+      <div>
+        <span class="username"><%= @post.user.username %></span>
+        <span class="post-time"><%=(@post.created_at) %> ago</span>
+      </div>
+    </div>
   </div>
 
   <!-- Post Content -->
-  <div class="forest-post__content">
-    <h2 class="forest-post__title"><%= @post.title %></h2>
-    <p class="forest-post__description"><%= @post.body %></p>
+  <div class="post-content">
+    <h1 class="post-title"><%= @post.title %></h1>
+    <p class="post-body"><%= @post.body %></p>
     
     <% if @post.image.attached? %>
-      <div class="forest-post__media">
-        <img src="<%= url_for(@post.image) %>" alt="Post image" class="forest-post__image">
+      <div class="post-media">
+        <%= image_tag(@post.image, class: "post-image") %>
       </div>
     <% end %>
   </div>
 
-  <!-- Post Engagement -->
-  <div class="forest-post__stats">
-    <span class="forest-post__comment-count"><%= @post.comments.count %> comments</span>
+  <!-- Post Stats -->
+  <div class="post-stats">
+    <div class="stat-item">
+      <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span><%= @post.comments.count %> comments</span>
+    </div>
+    <div class="stat-item">
+      <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      <span><%= @post.likes.count %> likes</span>
+    </div>
   </div>
 
-  <!-- Comments Section -->
-  <div class="forest-comments">
-    <% if @post.comments.any? %>
-      <ul class="forest-comments__list">
-        <% @post.comments.each do |comment| %>
-          <li class="forest-comments__item">
-            <div class="forest-comments__header">
-              <%= image_tag(comment.user.image.attached? ? comment.user.image : 'default-avatar.png', 
-                  class: "forest-comments__avatar") %>
-              <span class="forest-comments__user"><%= comment.user.username %></span>
-            </div>
-            <p class="forest-comments__text"><%= comment.body %></p>
-            <% if comment.user == current_user %>
-              <div class="forest-comments__actions">
-                <%= link_to "Edit", edit_post_comment_path(@post, comment), class: "forest-btn forest-btn--text" %>
-                <%= button_to 'Delete', [comment.post, comment],
-                    method: :delete,
-                    data: { confirm: "Are you sure?" },
-                    class: "forest-btn forest-btn--text" %>
-              </div>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
-  </div>
+ <!-- Comments Section -->
+<div class="comments-section">
+  <h3 class="comments-title">Comments</h3>
+  
+  <% if @post.comments.any? %>
+    <div id="post-<%= @post.id %>-comments">
+      <% @post.comments.each do |comment| %>
+        <%= render 'comments/comment', comment: comment %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-comments">
+      <p>No comments yet. Be the first to comment!</p>
+    </div>
+  <% end %>
 
-  <!-- Add Comment -->
-  <div class="forest-comment-form">
-    <% if user_signed_in? %>
-      <h4 class="forest-comment-form__title">Add a Comment:</h4>
-      <%= render 'comments/form', post: @post, comment: Comment.new %>
-    <% else %>
-      <p class="forest-comment-form__prompt">
-        <%= link_to "Log in to add a comment", new_user_session_path, class: "forest-link" %>
-      </p>
-    <% end %>
-  </div>
+  <!-- Comment Form - Renders only once -->
+  <% if user_signed_in? %>
+    <div id="new-comment-form">
+      <h4 class="form-title">Add a Comment</h4>
+      <%= render 'comments/form', comment: @comment, post: @comment.post  %>
+    </div>
+  <% else %>
+    <p class="login-prompt">
+      <%= link_to "Log in to add a comment", new_user_session_path, class: "text-link" %>
+    </p>
+  <% end %>
+</div>
 
   <!-- Post Actions -->
   <% if @post.user == current_user %>
-    <div class="forest-post__actions">
-      <%= link_to "Edit Post", edit_post_path(@post), class: "forest-btn forest-btn--primary" %>
-      <%= button_to "Delete Post", @post, 
-          method: :delete, 
-          data: { turbo_confirm: "Are you sure?" }, 
-          class: "forest-btn forest-btn--danger" %>
-    </div>
+    <div class="post-actions">
+  <%= link_to "Edit Post", edit_post_path(@post), class: "button primary" if @post.user == current_user %>
+  
+  <% if @post.can_be_deleted_by?(current_user) %>
+    <%= button_to 'Delete', @post, 
+                 method: :delete, 
+                 class: "button danger",
+                 data: { confirm: 'Are you sure?' } %>
+  <% end %>
+</div>
   <% end %>
 </div>
 
 <style>
-  /* Base Styles */
-.forest-post {
-  background-color: #f8f9f5;
-  border-radius: 12px;
+/* Base Styles */
+.post-container {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid #e0e6d3;
-  box-shadow: 0 2px 8px rgba(46, 91, 55, 0.08);
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
 }
 
-/* Author Section */
-.forest-post__author {
+/* Post Header */
+.post-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.author-info {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
-.forest-post__avatar {
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+}
+
+.username {
+  font-weight: 600;
+  color: #333;
+  display: block;
+}
+
+.post-time {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Post Content */
+.post-content {
+  margin-bottom: 24px;
+}
+
+.post-title {
+  font-size: 24px;
+  margin: 0 0 16px;
+  color: #222;
+  font-weight: 700;
+}
+
+.post-body {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.post-media {
+  margin: 20px 0;
+}
+
+.post-image {
+  max-width: 100%;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Post Stats */
+.post-stats {
+  display: flex;
+  gap: 20px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  margin: 20px 0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.stat-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Comments Section */
+.comments-section {
+  margin: 30px 0;
+}
+
+.comments-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comment-item {
+  padding: 16px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.comment-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #4a6b3d;
+  border: 1px solid #e0e0e0;
 }
 
-.forest-post__username {
-  margin-left: 12px;
+.comment-user {
   font-weight: 600;
-  color: #3a5a40;
+  color: #333;
+  font-size: 14px;
 }
 
-/* Content Section */
-.forest-post__title {
-  color: #2d3a25;
-  margin-bottom: 12px;
-  font-size: 1.4rem;
+.comment-time {
+  font-size: 12px;
+  color: #888;
+  display: block;
 }
 
-.forest-post__description {
-  color: #4a5c43;
+.comment-text {
+  color: #444;
+  margin: 8px 0;
   line-height: 1.5;
-  margin-bottom: 20px;
+  font-size: 15px;
 }
 
-.forest-post__media {
-  margin: 15px 0;
-}
-
-.forest-post__image {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  border: 1px solid #d4e0c9;
-}
-
-/* Stats Section */
-.forest-post__stats {
-  padding: 12px 0;
-  border-top: 1px solid #e0e6d3;
-  border-bottom: 1px solid #e0e6d3;
-  margin: 20px 0;
-}
-
-.forest-post__comment-count {
-  color: #5a7d4e;
-  font-size: 0.9rem;
-}
-
-/* Comments Section */
-.forest-comments {
-  margin-top: 20px;
-}
-
-.forest-comments__list {
-  list-style: none;
-  padding: 0;
-}
-
-.forest-comments__item {
-  padding: 15px 0;
-  border-bottom: 1px solid #e8efe2;
-}
-
-.forest-comments__header {
+.comment-actions {
   display: flex;
-  align-items: center;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.forest-comments__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #a5c08d;
-}
-
-.forest-comments__user {
-  margin-left: 10px;
-  font-size: 0.9rem;
-  color: #4a6b3d;
-  font-weight: 500;
-}
-
-.forest-comments__text {
-  color: #5a6d52;
-  margin: 8px 0 10px 42px;
-  font-size: 0.95rem;
-}
-
-.forest-comments__actions {
-  margin-left: 42px;
+.empty-comments {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  border: 1px dashed #e0e0e0;
+  border-radius: 6px;
 }
 
 /* Comment Form */
-.forest-comment-form {
-  margin-top: 25px;
+.comment-form {
+  margin: 30px 0;
 }
 
-.forest-comment-form__title {
-  color: #3a5a40;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
+.form-title {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #333;
 }
 
-.forest-comment-form__prompt {
-  color: #5a7d4e;
-  font-size: 0.9rem;
+.login-prompt {
+  text-align: center;
+  color: #888;
 }
 
-/* Buttons & Links */
-.forest-btn {
-  padding: 8px 16px;
+/* Buttons */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s;
   border: none;
+  transition: all 0.2s;
 }
 
-.forest-btn--primary {
-  background-color: #4a6b3d;
+.button.primary {
+  background-color: #333;
   color: white;
 }
 
-.forest-btn--primary:hover {
-  background-color: #3a5a30;
+.button.primary:hover {
+  background-color: #222;
 }
 
-.forest-btn--danger {
-  background-color: #e8c4c4;
-  color: #8b2e2e;
+.button.danger {
+  background-color: #fff;
+  color: #ff4757;
+  border: 1px solid #ff4757;
 }
 
-.forest-btn--danger:hover {
-  background-color: #e0b3b3;
+.button.danger:hover {
+  background-color: #ffeeee;
 }
 
-.forest-btn--text {
+.text-button {
   background: none;
-  color: #5a7d4e;
+  border: none;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
   padding: 4px 8px;
   text-decoration: underline;
 }
 
-.forest-btn--text:hover {
-  color: #3a5a40;
+.text-button.danger {
+  color: #ff4757;
 }
 
-.forest-link {
-  color: #5a7d4e;
-  text-decoration: none;
-}
-
-.forest-link:hover {
+.text-link {
+  color: #333;
   text-decoration: underline;
-  color: #3a5a40;
 }
 
 /* Post Actions */
-.forest-post__actions {
+.post-actions {
   display: flex;
   gap: 12px;
-  margin-top: 25px;
+  margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e0e6d3;
+  border-top: 1px solid #f0f0f0;
 }
 </style>

@@ -28,4 +28,53 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  navbar:
+    home: "Home"
+    discover: "Discover"
+    most_liked: "Most Liked"
+    most_commented: "Most Commented"
+    most_recent: "Most Recent"
+    draw: "Draw"
+    search_placeholder: "Search..."
+    my_profile: "My Profile"
+    my_drawings: "My Drawings"
+    new_drawing: "New Drawing"
+    sign_out: "Sign Out"
+    sign_in: "Sign In"
+    profile: "Profile"
+    logout: "Log Out"
+
+  app:
+    no_bio: "No bio available."
+    posts: "Posts"
+    edit_profile: "Edit Profile"
+    edit_post: "Edit Post"
+    delete_post: "Delete Post"
+    post_image: "Post Image"
+    add_comment: "Add Comment"
+    write_comment: "Write a comment..."
+    cancel: "Cancel"
+    comments: "Comments"
+    likes: "Likes"
+    comment_count:
+      one: "1 comment"
+      other: "%{count} comments"
+    like_count:
+      one: "1 like"
+      other: "%{count} likes"
+
+  time:
+    ago: "%{time} ago"
+
+  misc:
+    first_post: "First Post"
+
+  posts:
+    unknown_user: "Unknown User"
+    ago: "ago"
+    comments: "Comments"
+    like: "Like"
+    unlike: "Unlike"
+    empty_icon: "Empty State Icon"
+    no_posts_yet: "No posts yet"
+    be_the_first: "Be the first to share something!"

@@ -1,0 +1,51 @@
+es:
+  navbar:
+    home: "Inicio"
+    discover: "Descubrir"
+    most_liked: "Más gustados"
+    most_commented: "Más comentados"
+    most_recent: "Más recientes"
+    draw: "Dibujar"
+    search_placeholder: "Buscar..."
+    my_profile: "Mi perfil"
+    my_drawings: "Mis dibujos"
+    new_drawing: "Nuevo dibujo"
+    sign_out: "Cerrar sesión"
+    sign_in: "Iniciar sesión"
+    profile: "Perfil"
+    logout: "Cerrar sesión"
+
+  app:
+    no_bio: "No hay biografía disponible."
+    posts: "Publicaciones"
+    edit_profile: "Editar perfil"
+    edit_post: "Editar publicación"
+    delete_post: "Eliminar publicación"
+    post_image: "Imagen de la publicación"
+    add_comment: "Agregar comentario"
+    write_comment: "Escribe un comentario..."
+    cancel: "Cancelar"
+    comments: "Comentarios"
+    likes: "Me gusta"
+    comment_count:
+      one: "1 comentario"
+      other: "%{count} comentarios"
+    like_count:
+      one: "1 me gusta"
+      other: "%{count} me gusta"
+
+  time:
+    ago: "hace %{time}"
+
+  misc:
+    first_post: "Primera publicación"
+
+  posts:
+    unknown_user: "Usuario desconocido"
+    ago: "hace"
+    comments: "Comentarios"
+    like: "Me gusta"
+    unlike: "Ya no me gusta"
+    empty_icon: "Icono de estado vacío"
+    no_posts_yet: "No hay publicaciones aún"
+    be_the_first: "¡Sé el primero en compartir algo!"

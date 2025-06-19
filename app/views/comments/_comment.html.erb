@@ -1,0 +1,110 @@
+<div class="comment" id="comment-<%= comment.id %>">
+  <%= turbo_frame_tag "edit-comment-#{comment.id}" do %>
+    <div class="comment-user">
+      <%= link_to user_path(comment.user), class: "user-info" do %>
+        <% if comment.user.image.attached? %>
+          <%= image_tag comment.user.image, class: "comment-avatar" %>
+        <% else %>
+          <%= image_tag 'default-avatar.png', class: "comment-avatar" %>
+        <% end %>
+        <span class="username"><%= comment.user.username %></span>
+      <% end %>
+      
+      <% if comment.user == current_user %>
+        <div class="comment-actions">
+          <%= link_to edit_post_comment_path(comment.post, comment), 
+                      class: "edit-comment" do %>
+            <i class="fas fa-edit"></i> Edit
+          <% end %>
+          
+          <%= button_to post_comment_path(comment.post, comment), 
+                       method: :delete, 
+                       class: "delete-comment",
+                       form: { class: "delete-comment-form" } do %>
+            <i class="fas fa-trash"></i> Delete
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="comment-body">
+      <%= simple_format(comment.body) %>
+    </div>
+  <% end %>
+</div>
+
+
+<style>
+.comment {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.comment-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  flex-grow: 1;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.username {
+  font-weight: 600;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-comment, .delete-comment {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.edit-comment:hover {
+  color: #1a73e8;
+  background: #f0f7ff;
+}
+
+.delete-comment {
+  color: #f44336;
+}
+
+.delete-comment:hover {
+  background: #ffebee;
+}
+
+.delete-comment-form {
+  margin: 0;
+}
+
+.comment-body {
+  padding-left: 42px; /* Match avatar width + margin */
+  color: #333;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+</style>

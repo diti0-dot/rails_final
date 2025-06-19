@@ -60,4 +60,11 @@ end
 
 gem "devise", "~> 4.9"
 gem 'httparty', '~> 0.22.0'
-gem 'dotenv-rails', '~> 3.1'
+
+gem 'omniauth'
+gem 'omniauth-google-oauth2'
+gem 'dotenv-rails'
+gem 'omniauth-rails_csrf_protection'
+
+gem 'rails-i18n'
+gem 'audited'
