@@ -5,7 +5,7 @@
         <% if comment.user.image.attached? %>
           <%= image_tag comment.user.image, class: "comment-avatar" %>
         <% else %>
-          <%= image_tag 'default-avatar.png', class: "comment-avatar" %>
+         <%= image_tag 'default-avatar.png', alt: "Default user avatar", class: "comment-avatar" %>
         <% end %>
         <span class="username"><%= comment.user.username %></span>
       <% end %>
