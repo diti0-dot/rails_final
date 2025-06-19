@@ -1,4 +1,5 @@
 <div class="content">
+  <h1 class="page-title">Explore Pixel Art</h1>
   <div class="grid-container">
     <% if @posts.any? %>
       <% @posts.each do |post| %>
@@ -87,6 +88,13 @@
 
 <style>
 /* Base Styles */
+.page-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #222;
+}
+
 .content {
   padding: 20px;
   background-color: #ffffff;
@@ -246,4 +254,5 @@
   color: #888;
   margin: 0;
 }
+
 </style>
