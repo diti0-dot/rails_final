@@ -22,12 +22,94 @@
  */
 
 /* Base Styles */
+/*
+ *= require_tree .
+ *= require_self
+ */
+
+
+/* Base Styles */
 body {
-  background-color: #3c3c3c;
-  color: white;
+  background-color: #2e2e2e; /* slightly softer dark */
+  color: #e6f0e6; /* soft green-tinted white */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #a8e6a1;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #d0ffd0;
+  text-decoration: underline;
+}
+
+/* Locale Switcher */
+.locale-switcher {
+  margin: 10px;
 }
 
 .locale-switcher a {
+  color: #c8ffc8;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.locale-switcher a:hover {
+  background-color: rgba(200, 255, 200, 0.2);
+}
+
+/* General Containers */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background-color: #383838;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* Headings */
+h1, h2, h3 {
+  color: #d4ffd4;
+  font-weight: bold;
+}
+
+/* Buttons */
+button, .btn {
+  background-color: #4caf50;
   color: white;
-  text-decoration: none; /* Optional: removes underline */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover {
+  background-color: #45a049;
+}
+
+/* Forms */
+input, textarea, select {
+  background-color: #2b2b2b;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #a8e6a1;
+  box-shadow: 0 0 5px #a8e6a1;
 }
